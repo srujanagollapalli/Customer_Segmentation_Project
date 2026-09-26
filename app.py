@@ -13,12 +13,12 @@ st.set_page_config(
 # ---------------- LOAD DATA ----------------
 @st.cache_data
 def load_data():
-    if os.path.exists("customer_segmentation_exact.csv"):
+    if os.path.exists("Customer_Segmentation_200_Rows.xlsx"):
+        return pd.read_excel("Customer_Segmentation_200_Rows.xlsx")
+    elif os.path.exists("customer_segmentation_exact.csv"):
         return pd.read_csv("customer_segmentation_exact.csv")
-    elif os.path.exists("data/customer_segmentation_exact.csv"):
-        return pd.read_csv("data/customer_segmentation_exact.csv")
     else:
-        st.error("customer_segmentation_exact.csv file not found.")
+        st.error("Dataset file not found.")
         st.stop()
 
 df = load_data()
