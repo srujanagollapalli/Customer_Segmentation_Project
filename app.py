@@ -85,39 +85,54 @@ st.markdown("""
 footer{visibility:hidden;}
 header{visibility:hidden;}
 
-[data-testid="stSidebar"]{
-background:#0f1d3b;
+[data-testid="stAppViewContainer"]{
+    background:#f8f9fb;
 }
 
-[data-testid="stAppViewContainer"]{
-background:#f8f9fb;
+[data-testid="stSidebar"]{
+    background:#0f1d3b;
+    min-width:320px;
+    max-width:320px;
+}
+
+.block-container{
+    max-width:1400px;
+    padding-top:1.5rem;
+    padding-bottom:2rem;
+}
+
+h1{
+    font-size:42px !important;
+    color:#172033;
+}
+
+h2{
+    font-size:28px !important;
+}
+
+h3{
+    font-size:22px !important;
 }
 
 [data-testid="stSidebar"] label{
-color:white !important;
-font-weight:600;
+    color:white !important;
+    font-size:16px !important;
+    font-weight:600 !important;
 }
 
-div.stButton > button{
-width:100%;
-height:45px;
-border-radius:10px;
-font-weight:bold;
+[data-testid="stSidebar"] input{
+    font-size:16px !important;
 }
 
-.card{
-padding:18px;
-border-radius:15px;
-border:1px solid #ddd;
-height:100%;
+div.stButton>button{
+    width:100%;
+    height:48px;
+    font-size:16px;
+    border-radius:10px;
+    font-weight:700;
 }
-
-.blue{background:#eef5ff;}
-.green{background:#eefbf4;}
-.yellow{background:#fff8e8;}
 </style>
 """, unsafe_allow_html=True)
-
 # ---------------- CUSTOMER ----------------
 customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
 
