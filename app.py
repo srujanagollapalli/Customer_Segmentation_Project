@@ -15,10 +15,11 @@ st.set_page_config(
 def load_data():
     if os.path.exists("customer_segmentation_exact.csv"):
         return pd.read_csv("customer_segmentation_exact.csv")
-    return pd.read_csv("data/customer_segmentation_exact.csv")
-
-df = load_data()
-df["CustomerID"] = df["CustomerID"].astype(str)
+    elif os.path.exists("data/customer_segmentation_exact.csv"):
+        return pd.read_csv("data/customer_segmentation_exact.csv")
+    else:
+        st.error("customer_segmentation_exact.csv file not found.")
+        st.stop()
 
 # ---------------- SESSION ----------------
 if "page" not in st.session_state:
