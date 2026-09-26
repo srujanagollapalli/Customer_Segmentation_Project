@@ -24,6 +24,24 @@ def load_data():
 df = load_data()
 df["CustomerID"] = df["CustomerID"].astype(str)
 
+# Column names ni project ki match cheyyadam
+df.columns = df.columns.str.strip()
+
+if "Cluster" in df.columns and "Customer_Segment" not in df.columns:
+    segment_map = {
+        0: "High Value Customer",
+        1: "Regular Customer",
+        2: "Budget Customer",
+        3: "VIP Customer"
+    }
+    df["Customer_Segment"] = df["Cluster"].map(segment_map)
+
+if "KMeans_Cluster" not in df.columns and "Cluster" in df.columns:
+    df["KMeans_Cluster"] = df["Cluster"]
+
+if "Marketing_Suggestion" not in df.columns:
+    df["Marketing_Suggestion"] = "Focus on retention and personalized offers."
+
 # ---------------- SESSION ----------------
 if "page" not in st.session_state:
     st.session_state.page = "Home"
