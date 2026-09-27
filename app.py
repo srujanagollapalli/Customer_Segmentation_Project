@@ -144,7 +144,33 @@ font-size:15px;
 # ---------------- SIDEBAR ----------------
 
 with st.sidebar:
-    st.markdown("---")
+
+    st.markdown("""
+    <div style="text-align:center">
+        <h2 style="color:white;">👥 Customer Segmentation Platform</h2>
+        <p style="color:#CBD5E1;">Personalized Marketing Analytics</p>
+    </div>
+    <hr>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Enter Customer Details")
+
+    cid = st.text_input(
+        "Customer ID",
+        value=st.session_state.customer_id
+    )
+
+    found = df[df["CustomerID"] == cid]
+
+    if found.empty:
+        customer = df.iloc[0]
+    else:
+        customer = found.iloc[0]
+
+    st.number_input("Age", value=int(customer["Age"]), disabled=True)
+    st.number_input("Income (₹)", value=int(customer["AnnualIncome"]), disabled=True)
+    st.number_input("Purchase History", value=int(customer["PurchaseHistory"]), disabled=True)
+    st.number_input("Spending Score", value=int(customer["SpendingScore"]), disabled=True)
 
     if st.button("🔍 Predict Customer"):
         if cid in set(df["CustomerID"]):
