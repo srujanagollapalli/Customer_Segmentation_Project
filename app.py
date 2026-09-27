@@ -34,7 +34,7 @@ for c in df.columns:
         rename[c] = "Cluster"
 
 df.rename(columns=rename, inplace=True)
-df["CustomerID"] = df["CustomerID"].astype(str)
+df["CustomerID"] = df["CustomerID"].astype(str).str.strip().str.upper()
 
 # -------- ORIGINAL DATASET CLUSTER --------
 
@@ -161,17 +161,17 @@ with st.sidebar:
 
     st.markdown("### Enter Customer Details")
 
-    cid = st.text_input(
-        "Customer ID",
-        value=st.session_state.customer_id
-    )
+   cid = st.text_input(
+    "Customer ID",
+    value=st.session_state.customer_id
+).strip().upper()
 
-    found = df[df["CustomerID"] == cid]
+   found = df.loc[df["CustomerID"] == cid]
 
-    if found.empty:
-        customer = df.iloc[0]
-    else:
-        customer = found.iloc[0]
+if not found.empty:
+    customer = found.iloc[0]
+else:
+    customer = df.iloc[0]
 
     st.number_input("Age", value=int(customer["Age"]), disabled=True)
     st.number_input("Income (₹)", value=int(customer["AnnualIncome"]), disabled=True)
