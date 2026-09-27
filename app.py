@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ---------------- LOAD DATA ----------------
 
 @st.cache_data
 def load_data():
@@ -32,9 +35,9 @@ for c in df.columns:
 
 df.rename(columns=rename, inplace=True)
 df["CustomerID"] = df["CustomerID"].astype(str)
-# -------- Segment Logic --------
 
-# Dataset lo unna original Cluster ni use cheyyadam
+# -------- ORIGINAL DATASET CLUSTER --------
+
 df["Customer_Segment"] = df["Cluster"].astype(str).str.strip()
 
 cluster_map = {
@@ -46,8 +49,6 @@ cluster_map = {
 
 df["KMeans_Cluster"] = df["Customer_Segment"].map(cluster_map)
 
-df["KMeans_Cluster"] = df["Customer_Segment"].map(cluster_map)
-
 tips = {
     "Budget": "Offer affordable deals and discount coupons.",
     "Regular": "Provide loyalty rewards and seasonal discounts.",
@@ -56,7 +57,16 @@ tips = {
 }
 
 df["Marketing_Suggestion"] = df["Customer_Segment"].map(tips)
-    # ---------------- CSS ----------------
+
+# ---------------- SESSION ----------------
+
+if "customer_id" not in st.session_state:
+    st.session_state.customer_id = df["CustomerID"].iloc[0]
+
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+
+# ---------------- CSS ----------------
 
 st.markdown("""
 <style>
@@ -67,8 +77,8 @@ header{visibility:hidden;}
 
 [data-testid="stSidebar"]{
 background:#081733;
-min-width:310px;
-max-width:310px;
+min-width:300px;
+max-width:300px;
 }
 
 [data-testid="stAppViewContainer"]{
@@ -86,9 +96,6 @@ padding:20px;
 border-radius:16px;
 border:1px solid #E5E7EB;
 min-height:180px;
-display:flex;
-flex-direction:column;
-justify-content:space-between;
 box-shadow:0 2px 8px rgba(0,0,0,.05);
 }
 
@@ -98,7 +105,6 @@ padding:18px;
 border-radius:14px;
 border:1px solid #E5E7EB;
 box-shadow:0 2px 8px rgba(0,0,0,.05);
-color:#111827 !important;
 }
 
 .tip{
@@ -106,13 +112,12 @@ padding:16px;
 border-radius:14px;
 border:1px solid #E5E7EB;
 min-height:120px;
+color:#111827!important;
 box-shadow:0 2px 8px rgba(0,0,0,.04);
-color:#111827 !important;
 }
 
 .tip b{
-font-size:16px;
-color:#111827 !important;
+color:#111827!important;
 }
 
 .blue{background:#EEF5FF;}
@@ -120,7 +125,7 @@ color:#111827 !important;
 .yellow{background:#FFF8E8;}
 
 h1,h2,h3,h4,p,span,label{
-color:#111827 !important;
+color:#111827!important;
 }
 
 [data-testid="stSidebar"] h1,
@@ -129,7 +134,7 @@ color:#111827 !important;
 [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] span,
 [data-testid="stSidebar"] label{
-color:white !important;
+color:white!important;
 }
 
 div.stButton>button{
@@ -137,7 +142,6 @@ width:100%;
 height:46px;
 border-radius:10px;
 font-weight:bold;
-font-size:15px;
 }
 
 </style>
@@ -200,46 +204,29 @@ with st.sidebar:
         st.rerun()
 
 customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
-        st.rerun()
 
-    st.markdown("---")
-
-    if st.button("🏠 Home"):
-        st.session_state.page = "Home"
-        st.rerun()
-
-    if st.button("ℹ️ About Project"):
-        st.session_state.page = "About"
-        st.rerun()
-
-    if st.button("👥 Team"):
-        st.session_state.page = "Team"
-        st.rerun()
-
-customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
 # ---------------- HOME ----------------
 
 if st.session_state.page == "Home":
 
-   
+    confidence = int(customer["SpendingScore"])
 
-    # ---------- TOP 3 CARDS ----------
+    st.title("Customer Segmentation & Personalized Marketing Analytics")
+    st.success("Prediction Successful!")
+
     c1, c2, c3 = st.columns(3)
 
     with c1:
+        st.markdown(f"""
+        <div class="metric-card blue">
+            <h4>💎 Customer Segment</h4>
+            <h2 style="color:#2563EB;">{customer["Customer_Segment"]}</h2>
+            <p>Confidence Score</p>
+            <h3>{confidence}%</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
-    confidence = int(customer["SpendingScore"])
-
-    st.markdown(f"""
-    <div class="metric-card blue">
-        <h4>💎 Customer Segment</h4>
-        <h2 style="color:#1D4ED8;">{customer["Customer_Segment"]}</h2>
-        <p>Confidence Score</p>
-        <h4>{confidence}%</h4>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.progress(confidence/100)
+        st.progress(confidence/100)
 
     with c2:
         st.markdown(f"""
@@ -259,10 +246,9 @@ if st.session_state.page == "Home":
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("###")
 
-    # ---------- PROFILE + GRAPH ----------
-    left, right = st.columns([1, 1.4])
+    left, right = st.columns([1,1.4])
 
     with left:
 
@@ -287,31 +273,22 @@ if st.session_state.page == "Home":
         fig, ax = plt.subplots(figsize=(8,5))
 
         colors = {
-    "Budget":"red",
-    "Regular":"green",
-    "Premium":"blue",
-    "VIP":"purple"
-}
+            "Budget":"red",
+            "Regular":"green",
+            "Premium":"blue",
+            "VIP":"purple"
+        }
 
-        for seg in [
-            "High Value Customer",
-            "Premium Customer",
-            "Regular Customer",
-            "Budget Customer"
-        ]:
+        for seg, data in df.groupby("Customer_Segment"):
 
-            data = df[df["Customer_Segment"] == seg]
-
-            if not data.empty:
-
-                ax.scatter(
-                    data["AnnualIncome"],
-                    data["SpendingScore"],
-                    color=colors[seg],
-                    alpha=0.75,
-                    s=35,
-                    label=data["KMeans_Cluster"].iloc[0]
-                )
+            ax.scatter(
+                data["AnnualIncome"],
+                data["SpendingScore"],
+                color=colors.get(seg,"gray"),
+                alpha=0.8,
+                s=35,
+                label=seg
+            )
 
         ax.scatter(
             customer["AnnualIncome"],
@@ -329,44 +306,36 @@ if st.session_state.page == "Home":
         ax.legend()
 
         st.pyplot(fig)
-            # ---------- MARKETING SUGGESTIONS ----------
 
-    st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("💡 Personalized Marketing Suggestions")
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    cols = st.columns(5)
 
     cards = [
-        ("🎁 Premium Membership", "#EEF5FF"),
-        ("🏷 Festival Discount", "#EDF9F1"),
-        ("⭐ Loyalty Rewards", "#FFF8E8"),
-        ("✉ Personalized Offers", "#F4ECFF"),
-        ("⏰ Early Access", "#FFF1F1")
+        ("🎁 Premium Membership","#EEF5FF"),
+        ("🏷 Festival Discount","#EDF9F1"),
+        ("⭐ Loyalty Rewards","#FFF8E8"),
+        ("✉ Personalized Offers","#F4ECFF"),
+        ("⏰ Early Access","#FFF1F1")
     ]
 
-    for col, (title, bg) in zip([col1, col2, col3, col4, col5], cards):
+    for col,(title,bg) in zip(cols,cards):
         with col:
             st.markdown(f"""
             <div class="tip" style="background:{bg};">
-                <b>{title}</b>
-                <br><br>
+                <b>{title}</b><br><br>
                 {customer["Marketing_Suggestion"]}
             </div>
             """, unsafe_allow_html=True)
 
-    # ---------- FOOTER ----------
+    st.markdown("""
+    <hr>
+    <div style='text-align:center;color:#64748B;padding:15px;font-size:14px;'>
+        © 2024 Customer Segmentation Platform | Built with Streamlit
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown(
-        """
-        <hr>
-        <div style='text-align:center;color:#64748B;padding:15px;font-size:14px;'>
-            © 2024 Customer Segmentation Platform | Built with Streamlit
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ---------- ABOUT PAGE ----------
+# ---------------- ABOUT ----------------
 
 elif st.session_state.page == "About":
 
@@ -384,39 +353,30 @@ elif st.session_state.page == "About":
 
     ### Features
 
-    - Dynamic Customer Segmentation
+    - Customer Segmentation
     - Cluster Visualization
     - Customer Profile
-    - Personalized Marketing Suggestions
-    - Interactive Dashboard
-
-    ### Technology Used
-
-    - Python
-    - Pandas
-    - Streamlit
-    - Matplotlib
-    - K-Means Clustering
+    - Marketing Suggestions
     """)
 
-# ---------- TEAM PAGE ----------
+# ---------------- TEAM ----------------
 
 else:
 
     st.title("👥 Project Team")
 
-    team = [
-        ("Member 1", "Data Collection & Database"),
-        ("Member 2", "Data Preprocessing & EDA"),
-        ("Member 3", "K-Means Clustering"),
-        ("Member 4", "Marketing Analysis"),
-        ("Member 5", "Frontend & Integration")
+    members = [
+        ("Member 1","Data Collection & Database"),
+        ("Member 2","Data Preprocessing & EDA"),
+        ("Member 3","K-Means Clustering"),
+        ("Member 4","Marketing Analysis"),
+        ("Member 5","Frontend & Integration")
     ]
 
-    for name, role in team:
+    for name, role in members:
         st.markdown(f"""
         <div style="background:white;padding:18px;border-radius:12px;border:1px solid #E5E7EB;margin-bottom:12px;">
-            <h4 style="margin-bottom:5px;">👤 {name}</h4>
-            <p style="margin:0;color:#475569;">{role}</p>
+            <h4>👤 {name}</h4>
+            <p>{role}</p>
         </div>
         """, unsafe_allow_html=True)
