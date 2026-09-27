@@ -46,6 +46,8 @@ cluster_map = {
 
 df["KMeans_Cluster"] = df["Customer_Segment"].map(cluster_map)
 
+df["KMeans_Cluster"] = df["Customer_Segment"].map(cluster_map)
+
 tips = {
     "Budget": "Offer affordable deals and discount coupons.",
     "Regular": "Provide loyalty rewards and seasonal discounts.",
@@ -219,13 +221,7 @@ customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
 
 if st.session_state.page == "Home":
 
-    customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
-
-    # Dynamic Confidence Score
-    confidence = min(99, max(70, int(customer["SpendingScore"]) + 15))
-
-    st.title("Customer Segmentation & Personalized Marketing Analytics")
-    st.success("Prediction Successful!")
+   
 
     # ---------- TOP 3 CARDS ----------
     c1, c2, c3 = st.columns(3)
@@ -243,7 +239,7 @@ if st.session_state.page == "Home":
     </div>
     """, unsafe_allow_html=True)
 
-    st.progress(confidence / 100)
+    st.progress(confidence/100)
 
     with c2:
         st.markdown(f"""
@@ -291,11 +287,11 @@ if st.session_state.page == "Home":
         fig, ax = plt.subplots(figsize=(8,5))
 
         colors = {
-            "High Value Customer":"red",
-            "Premium Customer":"blue",
-            "Regular Customer":"green",
-            "Budget Customer":"purple"
-        }
+    "Budget":"red",
+    "Regular":"green",
+    "Premium":"blue",
+    "VIP":"purple"
+}
 
         for seg in [
             "High Value Customer",
