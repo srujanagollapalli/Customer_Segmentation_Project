@@ -16,61 +16,82 @@ def load_data():
 df = load_data()
 df.columns = df.columns.str.strip()
 
-rename = {}
+rename={}
 for c in df.columns:
-    x = c.lower().replace(" ", "")
-    if x == "customerid":
-        rename[c] = "CustomerID"
-    elif x == "annualincome":
-        rename[c] = "AnnualIncome"
-    elif x == "purchasehistory":
-        rename[c] = "PurchaseHistory"
-    elif x == "spendingscore":
-        rename[c] = "SpendingScore"
-    elif x == "cluster":
-        rename[c] = "Cluster"
+    x=c.lower().replace(" ","")
+    if x=="customerid":
+        rename[c]="CustomerID"
+    elif x=="annualincome":
+        rename[c]="AnnualIncome"
+    elif x=="purchasehistory":
+        rename[c]="PurchaseHistory"
+    elif x=="spendingscore":
+        rename[c]="SpendingScore"
+    elif x=="cluster":
+        rename[c]="Cluster"
 
-df.rename(columns=rename, inplace=True)
-df["CustomerID"] = df["CustomerID"].astype(str)
+df.rename(columns=rename,inplace=True)
+df["CustomerID"]=df["CustomerID"].astype(str)
 
-# ---------- Segment Mapping ----------
+# ---------------- SEGMENT ----------------
+
 if pd.api.types.is_numeric_dtype(df["Cluster"]):
-    seg_map = {
-        0: "High Value Customer",
-        1: "Regular Customer",
-        2: "Budget Customer",
-        3: "VIP Customer"
+
+    seg_map={
+        0:"High Value Customer",
+        1:"Regular Customer",
+        2:"Budget Customer",
+        3:"VIP Customer"
     }
-    cluster_map = {
-        0: "Cluster 0",
-        1: "Cluster 1",
-        2: "Cluster 2",
-        3: "Cluster 3"
+
+    cl_map={
+        0:"Cluster 0",
+        1:"Cluster 1",
+        2:"Cluster 2",
+        3:"Cluster 3"
     }
-    df["Customer_Segment"] = df["Cluster"].map(seg_map)
-    df["KMeans_Cluster"] = df["Cluster"].map(cluster_map)
+
+    df["Customer_Segment"]=df["Cluster"].map(seg_map)
+    df["KMeans_Cluster"]=df["Cluster"].map(cl_map)
+
 else:
-    df["Customer_Segment"] = df["Cluster"].astype(str)
-    df["KMeans_Cluster"] = df["Cluster"].astype(str)
 
-tips = {
-    "High Value Customer": "Focus on retention and premium offers.",
-    "Regular Customer": "Give loyalty rewards and seasonal discounts.",
-    "Budget Customer": "Offer affordable deals and coupons.",
-    "VIP Customer": "Provide exclusive access and premium benefits."
+    cl={
+        "Budget":"Cluster 0",
+        "Regular":"Cluster 1",
+        "Premium":"Cluster 2",
+        "VIP":"Cluster 3"
+    }
+
+    df["Customer_Segment"]=df["Cluster"].astype(str)
+    df["KMeans_Cluster"]=df["Cluster"].map(cl).fillna("Cluster 0")
+
+tips={
+"High Value Customer":"Focus on retention and premium offers.",
+"Regular Customer":"Provide loyalty rewards and seasonal discounts.",
+"Budget Customer":"Offer affordable deals and coupons.",
+"VIP Customer":"Give exclusive access and premium benefits.",
+"Budget":"Offer discount coupons and budget-friendly deals.",
+"Regular":"Provide loyalty rewards and seasonal offers.",
+"Premium":"Offer premium membership with exclusive benefits.",
+"VIP":"Give exclusive early access and VIP services."
 }
-df["Marketing_Suggestion"] = df["Customer_Segment"].map(tips)
 
-# ---------- Session ----------
+df["Marketing_Suggestion"]=df["Customer_Segment"].map(tips).fillna("Focus on retention and premium offers.")
+
+# ---------------- SESSION ----------------
+
 if "customer_id" not in st.session_state:
-    st.session_state.customer_id = df["CustomerID"].iloc[0]
+    st.session_state.customer_id=df["CustomerID"].iloc[0]
 
 if "page" not in st.session_state:
-    st.session_state.page = "Home"
+    st.session_state.page="Home"
 
-# ---------- CSS ----------
+# ---------------- CSS ----------------
+
 st.markdown("""
 <style>
+
 #MainMenu{visibility:hidden;}
 footer{visibility:hidden;}
 header{visibility:hidden;}
@@ -82,17 +103,17 @@ max-width:310px;
 }
 
 [data-testid="stAppViewContainer"]{
-background:#f5f7fb;
+background:#F7F9FC;
 }
 
 .block-container{
-padding-top:20px;
 max-width:1400px;
+padding-top:20px;
 }
 
 .metric-card{
-border-radius:16px;
 padding:20px;
+border-radius:16px;
 height:165px;
 border:1px solid #ddd;
 }
@@ -102,30 +123,39 @@ background:white;
 padding:18px;
 border-radius:14px;
 border:1px solid #ddd;
-color:#111827;
+color:#111827!important;
 }
 
 .tip{
-padding:15px;
+padding:16px;
 border-radius:14px;
 border:1px solid #ddd;
 height:120px;
+color:#111827!important;
+font-size:15px;
+font-weight:500;
 }
 
-.blue{background:#eef5ff;}
-.green{background:#eef9ef;}
-.yellow{background:#fff7e3;}
+.tip b{
+color:#111827!important;
+font-size:16px;
+}
 
-h1,h2,h3,h4,p,span{
-color:#111827;
+.blue{background:#EEF5FF;}
+.green{background:#EDF9F1;}
+.yellow{background:#FFF8E8;}
+
+h1,h2,h3,h4,p,span,label{
+color:#111827!important;
 }
 
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
 [data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span{
-color:white;
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label{
+color:white!important;
 }
 
 div.stButton>button{
@@ -134,43 +164,45 @@ height:46px;
 border-radius:10px;
 font-weight:bold;
 }
-</style>
-""", unsafe_allow_html=True)
 
-# ---------- Sidebar ----------
+</style>
+""",unsafe_allow_html=True)
+
+# ---------------- SIDEBAR ----------------
+
 with st.sidebar:
 
     st.markdown("""
     <div style="text-align:center">
     <h2 style="color:white;">👥 Customer Segmentation Platform</h2>
-    <p style="color:#cbd5e1;">Personalized Marketing Analytics</p>
+    <p style="color:#CBD5E1;">Personalized Marketing Analytics</p>
     </div>
     <hr>
-    """, unsafe_allow_html=True)
+    """,unsafe_allow_html=True)
 
     st.markdown("### Enter Customer Details")
 
-    cid = st.text_input("Customer ID", value=st.session_state.customer_id)
+    cid=st.text_input("Customer ID",value=st.session_state.customer_id)
 
-    found = df[df["CustomerID"] == cid]
+    found=df[df["CustomerID"]==cid]
 
     if found.empty:
-        customer = df.iloc[0]
+        customer=df.iloc[0]
     else:
-        customer = found.iloc[0]
+        customer=found.iloc[0]
 
-    st.number_input("Age", value=int(customer["Age"]), disabled=True)
-    st.number_input("Income (₹)", value=int(customer["AnnualIncome"]), disabled=True)
-    st.number_input("Purchase History", value=int(customer["PurchaseHistory"]), disabled=True)
-    st.number_input("Spending Score", value=int(customer["SpendingScore"]), disabled=True)
+    st.number_input("Age",value=int(customer["Age"]),disabled=True)
+    st.number_input("Income (₹)",value=int(customer["AnnualIncome"]),disabled=True)
+    st.number_input("Purchase History",value=int(customer["PurchaseHistory"]),disabled=True)
+    st.number_input("Spending Score",value=int(customer["SpendingScore"]),disabled=True)
 
     if st.button("🔍 Predict Customer"):
         if cid in set(df["CustomerID"]):
-            st.session_state.customer_id = cid
+            st.session_state.customer_id=cid
             st.rerun()
 
     if st.button("↻ Reset"):
-        st.session_state.customer_id = df["CustomerID"].iloc[0]
+        st.session_state.customer_id=df["CustomerID"].iloc[0]
         st.rerun()
 
     st.markdown("---")
@@ -187,45 +219,46 @@ with st.sidebar:
         st.session_state.page="Team"
         st.rerun()
 
-customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
+customer=df[df["CustomerID"]==st.session_state.customer_id].iloc[0]
 
-# ---------- HOME ----------
-if st.session_state.page == "Home":
+# ---------------- HOME ----------------
+
+if st.session_state.page=="Home":
 
     st.title("Customer Segmentation & Personalized Marketing Analytics")
     st.success("Prediction Successful!")
 
-    c1,c2,c3 = st.columns(3)
+    c1,c2,c3=st.columns(3)
 
     with c1:
         st.markdown(f"""
         <div class="metric-card blue">
         <h4>💎 Customer Segment</h4>
-        <h2 style="color:#1d4ed8;">{customer["Customer_Segment"]}</h2>
+        <h2 style="color:#1D4ED8;">{customer["Customer_Segment"]}</h2>
         <p>Confidence Score</p>
         <h4>92.45%</h4>
         </div>
-        """, unsafe_allow_html=True)
+        """,unsafe_allow_html=True)
 
     with c2:
         st.markdown(f"""
         <div class="metric-card green">
         <h4>👥 Cluster</h4>
-        <h2 style="color:#16a34a;">{customer["KMeans_Cluster"]}</h2>
+        <h2 style="color:#16A34A;">{customer["KMeans_Cluster"]}</h2>
         <p>High income, high spending customer.</p>
         </div>
-        """, unsafe_allow_html=True)
+        """,unsafe_allow_html=True)
 
     with c3:
         st.markdown(f"""
         <div class="metric-card yellow">
         <h4>⭐ Marketing Priority</h4>
-        <h2 style="color:#d97706;">High</h2>
+        <h2 style="color:#D97706;">High</h2>
         <p>{customer["Marketing_Suggestion"]}</p>
         </div>
-        """, unsafe_allow_html=True)
+        """,unsafe_allow_html=True)
 
-    left,right = st.columns([1,1.4])
+    left,right=st.columns([1,1.4])
 
     with left:
 
@@ -234,26 +267,30 @@ if st.session_state.page == "Home":
         st.markdown(f"""
         <div class="profile-box">
         <p><b>Customer ID:</b> {customer["CustomerID"]}</p>
-        <p><b>Age:</b> {customer["Age"]}</p>
+        <p><b>Age:</b> {customer["Age"]} Years</p>
         <p><b>Income:</b> ₹{customer["AnnualIncome"]:,}</p>
         <p><b>Purchase History:</b> {customer["PurchaseHistory"]}</p>
         <p><b>Spending Score:</b> {customer["SpendingScore"]}/100</p>
         <p><b>Segment:</b> {customer["Customer_Segment"]}</p>
         <p><b>Cluster:</b> {customer["KMeans_Cluster"]}</p>
         </div>
-        """, unsafe_allow_html=True)
+        """,unsafe_allow_html=True)
 
     with right:
 
         st.subheader("📊 Cluster Visualization")
 
-        fig,ax = plt.subplots(figsize=(8,5))
+        fig,ax=plt.subplots(figsize=(8,5))
 
-        colors = {
-            "High Value Customer":"red",
-            "Regular Customer":"blue",
-            "Budget Customer":"green",
-            "VIP Customer":"purple"
+        colors={
+        "High Value Customer":"red",
+        "Regular Customer":"blue",
+        "Budget Customer":"green",
+        "VIP Customer":"purple",
+        "Budget":"red",
+        "Regular":"blue",
+        "Premium":"green",
+        "VIP":"purple"
         }
 
         for seg,d in df.groupby("Customer_Segment"):
@@ -262,9 +299,9 @@ if st.session_state.page == "Home":
                 d["AnnualIncome"],
                 d["SpendingScore"],
                 color=colors.get(seg,"gray"),
-                alpha=.7,
+                alpha=.8,
                 s=35,
-                label=seg
+                label=df.loc[d.index[0],"KMeans_Cluster"]
             )
 
         ax.scatter(
@@ -272,7 +309,7 @@ if st.session_state.page == "Home":
             customer["SpendingScore"],
             color="black",
             marker="*",
-            s=280,
+            s=300,
             label="Selected Customer"
         )
 
@@ -286,28 +323,30 @@ if st.session_state.page == "Home":
 
     st.subheader("💡 Personalized Marketing Suggestions")
 
-    cols = st.columns(5)
+    cols=st.columns(5)
 
-    cards = [
-        ("🎁 Premium Membership","#eef5ff"),
-        ("🏷 Festival Discount","#edf9ef"),
-        ("⭐ Loyalty Rewards","#fff8e5"),
-        ("✉ Personalized Offers","#f4ecff"),
-        ("⏰ Early Access","#fff1f1")
+    cards=[
+    ("🎁 Premium Membership","#EEF5FF"),
+    ("🏷 Festival Discount","#EDF9F1"),
+    ("⭐ Loyalty Rewards","#FFF8E8"),
+    ("✉ Personalized Offers","#F4ECFF"),
+    ("⏰ Early Access","#FFF1F1")
     ]
 
     for col,(title,bg) in zip(cols,cards):
+
         with col:
+
             st.markdown(f"""
             <div class="tip" style="background:{bg}">
             <b>{title}</b><br><br>
             {customer["Marketing_Suggestion"]}
             </div>
-            """, unsafe_allow_html=True)
+            """,unsafe_allow_html=True)
 
     st.markdown(
-        "<div style='text-align:center;color:#64748b;padding:18px;'>© 2024 Customer Segmentation Platform | Built with Streamlit</div>",
-        unsafe_allow_html=True
+    "<div style='text-align:center;color:#64748B;padding:18px;'>© 2024 Customer Segmentation Platform | Built with Streamlit</div>",
+    unsafe_allow_html=True
     )
 
 elif st.session_state.page=="About":
