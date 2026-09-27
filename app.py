@@ -48,18 +48,65 @@ if "page" not in st.session_state:
 
 st.markdown("""
 <style>
-#MainMenu{visibility:hidden;}footer{visibility:hidden;}header{visibility:hidden;}
-[data-testid="stAppViewContainer"]{background:#f6f8fc;}
-[data-testid="stSidebar"]{background:#081733;min-width:310px;max-width:310px;}
-.block-container{max-width:1400px;padding-top:1.2rem;}
-h1,h2,h3{color:#111827!important;}
-.metric{padding:20px;border-radius:15px;border:1px solid #ddd;height:150px;}
-.blue{background:#eef5ff;}.green{background:#edf9f1;}.yellow{background:#fff8e8;}
-.profile{background:white;border:1px solid #ddd;border-radius:15px;padding:16px;}
-.tip{padding:14px;border-radius:12px;border:1px solid #ddd;height:120px;}
-div.stButton>button{width:100%;height:46px;border-radius:10px;font-weight:700;}
+#MainMenu{visibility:hidden;}
+footer{visibility:hidden;}
+header{visibility:hidden;}
+
+[data-testid="stAppViewContainer"]{
+    background:#F7F9FC;
+}
+
+[data-testid="stSidebar"]{
+    background:#0F1D3B;
+}
+
+.block-container{
+    max-width:1400px;
+    padding-top:1.5rem;
+}
+
+h1,h2,h3,h4,p,span,label{
+    color:#111827 !important;
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label{
+    color:white !important;
+}
+
+.metric{
+    background:white;
+    border:1px solid #E5E7EB;
+    border-radius:14px;
+    padding:20px;
+    color:#111827 !important;
+}
+
+.profile{
+    background:white;
+    border:1px solid #E5E7EB;
+    border-radius:14px;
+    padding:18px;
+    color:#111827 !important;
+}
+
+.tip{
+    border-radius:12px;
+    padding:14px;
+    color:#111827 !important;
+}
+
+div.stButton > button{
+    width:100%;
+    height:46px;
+    border-radius:10px;
+    font-weight:bold;
+}
 </style>
-""",unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 customer=df[df["CustomerID"]==st.session_state.customer_id].iloc[0]
 
@@ -120,16 +167,43 @@ if st.session_state.page=="Home":
         ax.scatter(customer["AnnualIncome"],customer["SpendingScore"],marker="*",s=260,color="black",label="Selected Customer")
         ax.set_xlabel("Income (₹)"); ax.set_ylabel("Spending Score"); ax.grid(alpha=.2); ax.legend()
         st.pyplot(fig)
-    st.subheader("💡 Personalized Marketing Suggestions")
-    cols=st.columns(5)
-    items=[("🎁 Premium Membership","#eef5ff"),("🏷 Festival Discount","#edf9f1"),("⭐ Loyalty Rewards","#fff8e8"),("✉ Personalized Offers","#f6efff"),("⏰ Early Access","#fff0f0")]
-    for col,(title,bg) in zip(cols,items):
-        with col:
-            st.markdown(f"<div class='tip' style='background:{bg}'><b>{title}</b></div>",unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center;color:#64748b;padding:18px;'>© 2024 Customer Segmentation Platform | Built with Streamlit</div>",unsafe_allow_html=True)
-elif st.session_state.page=="About":
-    st.title("About Project")
-    st.write("Customer Segmentation and Personalized Marketing Analytics using Income, Purchase History, Spending Score and K-Means Clustering.")
-else:
-    st.title("Team")
-    st.write("- Member 1 – Data Collection\n- Member 2 – Data Preprocessing\n- Member 3 – K-Means Clustering\n- Member 4 – Marketing Analysis\n- Member 5 – Frontend & Integration")
+    st.subheader("📊 Cluster Visualization")
+
+fig, ax = plt.subplots(figsize=(8,5))
+
+colors = {
+    "Budget":"red",
+    "Regular":"green",
+    "Premium":"blue",
+    "VIP":"purple"
+}
+
+for seg in ["Budget","Regular","Premium","VIP"]:
+    d = df[df["Customer_Segment"] == seg]
+    if not d.empty:
+        ax.scatter(
+            d["AnnualIncome"],
+            d["SpendingScore"],
+            color=colors[seg],
+            alpha=0.7,
+            s=40,
+            label=seg
+        )
+
+ax.scatter(
+    customer["AnnualIncome"],
+    customer["SpendingScore"],
+    color="black",
+    marker="*",
+    s=300,
+    label="Selected Customer"
+)
+
+ax.set_title("Income vs Spending Score")
+ax.set_xlabel("Annual Income (₹)")
+ax.set_ylabel("Spending Score")
+ax.grid(alpha=0.2)
+ax.legend()
+
+st.pyplot(fig)
+plt.close(fig)
