@@ -149,6 +149,8 @@ font-weight:bold;
 
 # ---------------- SIDEBAR ----------------
 
+# ---------------- SIDEBAR ----------------
+
 with st.sidebar:
 
     st.markdown("""
@@ -161,17 +163,17 @@ with st.sidebar:
 
     st.markdown("### Enter Customer Details")
 
-   cid = st.text_input(
-    "Customer ID",
-    value=st.session_state.customer_id
-).strip().upper()
+    cid = st.text_input(
+        "Customer ID",
+        value=st.session_state.customer_id
+    ).strip().upper()
 
-   found = df.loc[df["CustomerID"] == cid]
+    found = df.loc[df["CustomerID"] == cid]
 
-if not found.empty:
-    customer = found.iloc[0]
-else:
-    customer = df.iloc[0]
+    if not found.empty:
+        customer = found.iloc[0]
+    else:
+        customer = df.iloc[0]
 
     st.number_input("Age", value=int(customer["Age"]), disabled=True)
     st.number_input("Income (₹)", value=int(customer["AnnualIncome"]), disabled=True)
@@ -179,7 +181,7 @@ else:
     st.number_input("Spending Score", value=int(customer["SpendingScore"]), disabled=True)
 
     if st.button("🔍 Predict Customer"):
-        if cid in set(df["CustomerID"]):
+        if not found.empty:
             st.session_state.customer_id = cid
             st.rerun()
         else:
@@ -187,6 +189,23 @@ else:
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
+        st.rerun()
+
+    st.markdown("---")
+
+    if st.button("🏠 Home"):
+        st.session_state.page = "Home"
+        st.rerun()
+
+    if st.button("ℹ️ About Project"):
+        st.session_state.page = "About"
+        st.rerun()
+
+    if st.button("👥 Team"):
+        st.session_state.page = "Team"
+        st.rerun()
+
+customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
         st.rerun()
 
     st.markdown("---")
