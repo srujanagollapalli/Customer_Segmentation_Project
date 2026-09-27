@@ -32,44 +32,28 @@ for c in df.columns:
 
 df.rename(columns=rename, inplace=True)
 df["CustomerID"] = df["CustomerID"].astype(str)
-
 # -------- Segment Logic --------
 
-def get_segment(row):
-    income = row["AnnualIncome"]
-    score = row["SpendingScore"]
+# Dataset lo unna original Cluster ni use cheyyadam
+df["Customer_Segment"] = df["Cluster"].astype(str).str.strip()
 
-    if income >= 90000 and score >= 75:
-        return "High Value Customer", "Cluster 0"
+cluster_map = {
+    "Budget": "Cluster 0",
+    "Regular": "Cluster 1",
+    "Premium": "Cluster 2",
+    "VIP": "Cluster 3"
+}
 
-    elif income >= 60000 and score >= 50:
-        return "Premium Customer", "Cluster 1"
-
-    elif income >= 35000 and score >= 35:
-        return "Regular Customer", "Cluster 2"
-
-    else:
-        return "Budget Customer", "Cluster 3"
-
-segments = df.apply(get_segment, axis=1)
-
-df["Customer_Segment"] = segments.apply(lambda x: x[0])
-df["KMeans_Cluster"] = segments.apply(lambda x: x[1])
+df["KMeans_Cluster"] = df["Customer_Segment"].map(cluster_map)
 
 tips = {
-    "High Value Customer": "Focus on retention and premium offers.",
-    "Premium Customer": "Offer premium membership and exclusive benefits.",
-    "Regular Customer": "Provide loyalty rewards and seasonal discounts.",
-    "Budget Customer": "Offer affordable deals and discount coupons."
+    "Budget": "Offer affordable deals and discount coupons.",
+    "Regular": "Provide loyalty rewards and seasonal discounts.",
+    "Premium": "Offer premium membership and exclusive benefits.",
+    "VIP": "Give exclusive access and premium benefits."
 }
 
 df["Marketing_Suggestion"] = df["Customer_Segment"].map(tips)
-
-if "customer_id" not in st.session_state:
-    st.session_state.customer_id = df["CustomerID"].iloc[0]
-
-if "page" not in st.session_state:
-    st.session_state.page = "Home"
     # ---------------- CSS ----------------
 
 st.markdown("""
@@ -208,9 +192,12 @@ with st.sidebar:
     )
 
     if st.button("🔍 Predict Customer"):
-        if cid in set(df["CustomerID"]):
-            st.session_state.customer_id = cid
-            st.rerun()
+    if cid in set(df["CustomerID"]):
+        st.session_state.customer_id = cid
+        customer = df[df["CustomerID"] == cid].iloc[0]
+        st.rerun()
+    else:
+        st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
@@ -247,20 +234,19 @@ if st.session_state.page == "Home":
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        st.markdown(f"""
-        <div class="metric-card blue">
-            <div>
-                <h4>💎 Customer Segment</h4>
-                <h2 style="color:#1D4ED8;">{customer["Customer_Segment"]}</h2>
-                <p>Confidence Score</p>
-                <h4>{confidence}%</h4>
-            </div>
 
-            <div style="background:#DBEAFE;height:8px;border-radius:10px;">
-                <div style="background:#2563EB;width:{confidence}%;height:8px;border-radius:10px;"></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    confidence = int(customer["SpendingScore"])
+
+    st.markdown(f"""
+    <div class="metric-card blue">
+        <h4>💎 Customer Segment</h4>
+        <h2 style="color:#1D4ED8;">{customer["Customer_Segment"]}</h2>
+        <p>Confidence Score</p>
+        <h4>{confidence}%</h4>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.progress(confidence / 100)
 
     with c2:
         st.markdown(f"""
