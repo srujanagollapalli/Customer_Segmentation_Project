@@ -144,62 +144,34 @@ font-size:15px;
 # ---------------- SIDEBAR ----------------
 
 with st.sidebar:
+    st.markdown("---")
 
-    st.markdown("""
-    <div style="text-align:center;padding-top:10px;">
-        <h2 style="color:white;">👥 Customer Segmentation Platform</h2>
-        <p style="color:#CBD5E1;">Personalized Marketing Analytics</p>
-    </div>
-    <hr>
-    """, unsafe_allow_html=True)
-
-    st.markdown("### Enter Customer Details")
-
-    cid = st.text_input(
-        "Customer ID",
-        value=st.session_state.customer_id
-    )
-
-    found = df[df["CustomerID"] == cid]
-
-    if found.empty:
-        customer = df.iloc[0]
-    else:
-        customer = found.iloc[0]
-
-    st.number_input(
-        "Age",
-        value=int(customer["Age"]),
-        disabled=True
-    )
-
-    st.number_input(
-        "Income (₹)",
-        value=int(customer["AnnualIncome"]),
-        disabled=True
-    )
-
-    st.number_input(
-        "Purchase History",
-        value=int(customer["PurchaseHistory"]),
-        disabled=True
-    )
-
-    st.number_input(
-        "Spending Score",
-        value=int(customer["SpendingScore"]),
-        disabled=True
-    )
-
-   if st.button("🔍 Predict Customer"):
-    if cid in set(df["CustomerID"]):
-        st.session_state.customer_id = cid
-        st.rerun()
-    else:
-        st.error("Customer ID not found.")
+    if st.button("🔍 Predict Customer"):
+        if cid in set(df["CustomerID"]):
+            st.session_state.customer_id = cid
+            st.rerun()
+        else:
+            st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
+        st.rerun()
+
+    st.markdown("---")
+
+    if st.button("🏠 Home"):
+        st.session_state.page = "Home"
+        st.rerun()
+
+    if st.button("ℹ️ About Project"):
+        st.session_state.page = "About"
+        st.rerun()
+
+    if st.button("👥 Team"):
+        st.session_state.page = "Team"
+        st.rerun()
+
+customer = df[df["CustomerID"] == st.session_state.customer_id].iloc[0]
         st.rerun()
 
     st.markdown("---")
