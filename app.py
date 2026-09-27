@@ -191,10 +191,9 @@ with st.sidebar:
         disabled=True
     )
 
-    if st.button("🔍 Predict Customer"):
+   if st.button("🔍 Predict Customer"):
     if cid in set(df["CustomerID"]):
         st.session_state.customer_id = cid
-        customer = df[df["CustomerID"] == cid].iloc[0]
         st.rerun()
     else:
         st.error("Customer ID not found.")
