@@ -170,13 +170,14 @@ with st.sidebar:
     st.number_input("Spending Score", value=int(preview["SpendingScore"]), disabled=True)
 
     if st.button("🔍 Predict Customer"):
-        if not found.empty:
-            st.session_state.customer_id = cid
-            st.session_state.predicted = True
-            st.balloons()
-            st.rerun()
-        else:
-            st.error("Customer ID not found.")
+    if not found.empty:
+        st.session_state.customer_id = cid
+        st.session_state.predicted = True
+        st.snow()       # ❄️ Top nunchi celebration
+        st.balloons()   # 🎈 Balloons
+        st.rerun()
+    else:
+        st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
@@ -205,8 +206,8 @@ if st.session_state.page == "Home":
     st.title("Customer Segmentation & Personalized Marketing Analytics")
 
     if st.session_state.predicted:
-        st.success("🎉 Prediction Successful! Customer details loaded successfully.")
-        st.session_state.predicted = False
+    st.success("🎉 Prediction Successful! Customer details loaded successfully.")
+    st.session_state.predicted = False
 
     confidence = int(customer["SpendingScore"])
 
