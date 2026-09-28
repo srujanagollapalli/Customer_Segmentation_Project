@@ -165,14 +165,18 @@ with st.sidebar:
     st.number_input("Purchase History", value=int(customer["PurchaseHistory"]), disabled=True)
     st.number_input("Spending Score", value=int(customer["SpendingScore"]), disabled=True)
 
-    if st.button("🔍 Predict Customer"):
-    if not found.empty:
-        st.session_state.customer_id = cid
-        st.session_state.predicted = True
-        st.balloons()
+       if st.button("🔍 Predict Customer"):
+        if not found.empty:
+            st.session_state.customer_id = cid
+            st.session_state.predicted = True
+            st.balloons()
+            st.rerun()
+        else:
+            st.error("Customer ID not found.")
+
+    if st.button("↻ Reset"):
+        st.session_state.customer_id = df["CustomerID"].iloc[0]
         st.rerun()
-    else:
-        st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
