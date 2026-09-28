@@ -169,18 +169,19 @@ with st.sidebar:
     st.number_input("Purchase History", value=int(preview["PurchaseHistory"]), disabled=True)
     st.number_input("Spending Score", value=int(preview["SpendingScore"]), disabled=True)
 
-    if st.button("🔍 Predict Customer"):
-    if not found.empty:
-        st.session_state.customer_id = cid
-        st.session_state.predicted = True
-        st.snow()       # ❄️ Top nunchi celebration
-        st.balloons()   # 🎈 Balloons
-        st.rerun()
-    else:
-        st.error("Customer ID not found.")
+       if st.button("🔍 Predict Customer"):
+        if not found.empty:
+            st.session_state.customer_id = cid
+            st.session_state.predicted = True
+            st.snow()
+            st.balloons()
+            st.rerun()
+        else:
+            st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
+        st.session_state.predicted = False
         st.rerun()
 
     st.markdown("---")
