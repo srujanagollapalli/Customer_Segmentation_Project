@@ -72,7 +72,7 @@ st.markdown("""
 
 #MainMenu{visibility:hidden;}
 footer{visibility:hidden;}
-header{visibility:hidden;}
+
 
 [data-testid="stSidebar"]{
 background:#081733;
@@ -166,11 +166,13 @@ with st.sidebar:
     st.number_input("Spending Score", value=int(customer["SpendingScore"]), disabled=True)
 
     if st.button("🔍 Predict Customer"):
-        if not found.empty:
-            st.session_state.customer_id = cid
-            st.rerun()
-        else:
-            st.error("Customer ID not found.")
+    if not found.empty:
+        st.session_state.customer_id = cid
+        st.session_state.predicted = True
+        st.balloons()
+        st.rerun()
+    else:
+        st.error("Customer ID not found.")
 
     if st.button("↻ Reset"):
         st.session_state.customer_id = df["CustomerID"].iloc[0]
@@ -199,7 +201,9 @@ if st.session_state.page == "Home":
     confidence = int(customer["SpendingScore"])
 
     st.title("Customer Segmentation & Personalized Marketing Analytics")
-    st.success("Prediction Successful!")
+   if st.session_state.get("predicted", False):
+    st.success("🎉 Prediction Successful! Customer details loaded successfully.")
+    st.session_state.predicted = False
 
     c1, c2, c3 = st.columns(3)
 
